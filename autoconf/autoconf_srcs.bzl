@@ -10,6 +10,7 @@ load(
     "get_autoconf_toolchain_defaults_by_label",
 )
 load("//autoconf/private:providers.bzl", "CcAutoconfInfo")
+load("@bazel_skylib//lib:paths.bzl", "paths")
 
 def _package_relative_name(ctx, file):
     """Returns the package relative path to the file.
@@ -17,9 +18,7 @@ def _package_relative_name(ctx, file):
     Fails if the file is not in the package of `ctx`.
     """
     pkg = ctx.label.package
-    short_path = file.short_path
-    if short_path.startswith("../"):
-        short_path = short_path[3:]
+    short_path = paths.relativize(file.path, ctx.label.workspace_root)
 
     if not short_path.startswith(pkg):
         fail("`{}` is not in the same package as `{}`. This is required.".format(
