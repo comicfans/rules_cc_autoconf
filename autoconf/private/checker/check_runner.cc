@@ -586,7 +586,6 @@ static std::string gen_less_compare(const std::string& base_code_template,
             "checks");
     }
     code.replace(rhs_pos, 5, rhs);
-    std::cout << "===========" << code << std::endl;
     return code;
 }
 
