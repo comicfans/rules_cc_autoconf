@@ -1,5 +1,6 @@
 """# autoconf_srcs"""
 
+load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@rules_cc//cc:find_cc_toolchain.bzl", "use_cc_toolchain")
 load(
     "//autoconf/private:autoconf_config.bzl",
@@ -17,9 +18,7 @@ def _package_relative_name(ctx, file):
     Fails if the file is not in the package of `ctx`.
     """
     pkg = ctx.label.package
-    short_path = file.short_path
-    if short_path.startswith("../"):
-        short_path = short_path[3:]
+    short_path = paths.relativize(file.path, ctx.label.workspace_root)
 
     if not short_path.startswith(pkg):
         fail("`{}` is not in the same package as `{}`. This is required.".format(
