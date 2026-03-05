@@ -572,14 +572,14 @@ static std::string gen_less_compare(const std::string& base_code_template,
                                     const std::string& lhs,
                                     const std::string& rhs) {
     std::string code = base_code_template;
-    size_t lhs_pos = code.find("{lhs}");
+    const size_t lhs_pos = code.find("{lhs}");
     if (lhs_pos == std::string::npos) {
         throw std::runtime_error(
             "Code template must contain '{lhs}' placeholder for static_assert "
             "checks");
     }
     code.replace(lhs_pos, 5, lhs);
-    size_t rhs_pos = code.find("{rhs}");
+    const size_t rhs_pos = code.find("{rhs}");
     if (rhs_pos == std::string::npos) {
         throw std::runtime_error(
             "Code template must contain '{rhs}' placeholder for static_assert "
@@ -591,14 +591,26 @@ static std::string gen_less_compare(const std::string& base_code_template,
 
 static std::pair<std::string, std::string> split_code_expr(
     const std::string& base_code_template) {
-    const std::string::size_type begin = base_code_template.find('{');
-    assert(begin != std::string::npos);
+    const size_t begin = base_code_template.find('{');
+    const char* const error =
+        "Code template must contains '{$EXPR}' placeholder for expr value "
+        "evaluation";
+    if (begin == std::string::npos) {
+        throw std::runtime_error(error);
+    }
 
-    const std::string::size_type end = base_code_template.find('}', begin + 1);
-    assert(end != std::string::npos);
+    const size_t end = base_code_template.find('}', begin + 1);
+    if (end == std::string::npos) {
+        throw std::runtime_error(error);
+    }
 
     const std::string expr =
         base_code_template.substr(begin + 1, end - begin - 1);
+
+    if (expr.empty()) {
+        throw std::runtime_error(error);
+    }
+
     std::string code = base_code_template;
     code.replace(begin, end - begin + 1, "");
     return {code, expr};
