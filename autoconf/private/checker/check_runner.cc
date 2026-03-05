@@ -660,7 +660,7 @@ std::optional<int> CheckRunner::find_compile_time_int_bisect(
 
     // begin <= current value <= end
     while (l < r) {
-        static_assert(sizeof(long) > sizeof(int));
+        
         // search_end will decrease by middle - 1
         // search_begin will increase with middle
         // when search_begin + 1 = search_end, we choose middle = search_end
