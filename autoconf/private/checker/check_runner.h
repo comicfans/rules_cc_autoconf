@@ -230,9 +230,8 @@ class CheckRunner {
      * @language language Language of the code ("c" or "cpp").
      * @param search_begin search begin (inclusive), default -1024
      * @param search_end search end (inclusive), default 1024
-     * @return The value of $EXPR evaluate, or std::nullopt if build failed
-     *         ($EXPR not defined, or invalid expression). Or throw exception
-     *         if $EXPR is valid expression, but out of search range
+     * @return The value of $EXPR evaluate, throw exception
+     *         if $EXPR is not valid or out of search range
      * */
     std::optional<int> find_compile_time_int_bisect(
         const std::string& base_code_template, const std::string& language,
