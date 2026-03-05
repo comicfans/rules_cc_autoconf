@@ -1,10 +1,13 @@
+"""# generate template.h.in and test_all_values.c for compute_int test
+"""
+
 load("//autoconf:checks.bzl", "checks")
 
 RANGE_BEGIN = -1024
 RANGE_END = 1025
 
 def _gen_template_and_src_impl(ctx):
-    src = ctx.actions.declare_file("gen_test_compute.c")
+    src = ctx.actions.declare_file("test_all_values.c")
 
     checks = "\n".join(["""assert(DEFINE_{} == {});""".format(str(i).replace("-", "_"), str(i)) for i in range(RANGE_BEGIN, RANGE_END, 1)])
 

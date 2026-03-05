@@ -64,7 +64,7 @@ filegroup(
 )
 
 cc_test(
-    name = "value_check_test",
+    name = "test_all_values",
     srcs = [
         "template.h",
         ":c",
