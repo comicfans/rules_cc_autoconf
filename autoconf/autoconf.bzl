@@ -37,7 +37,6 @@ def _extract_define_name(expr):
     return required_define
 
 def _add_all_checks(ctx, all_info):
-
     # Process all checks
     for check_json in ctx.attr.checks:
         check = json.decode(check_json)
@@ -153,7 +152,6 @@ def _check_duplicate(all_info, dep_results):
                 ))
     pass
 
-
 def _unique_name_file_map(label, all_required_defines, all_results):
     # Collect dependencies for all required defines
     # Build a dictionary mapping lookup_name -> file_path
@@ -163,8 +161,8 @@ def _unique_name_file_map(label, all_required_defines, all_results):
     for required_define in depset(all_required_defines).to_list():
         dep_results_file = None
         for group_name in ["cache", "define", "subst"]:
-            if required_define in getattr(all_results,group_name):
-                candidate_file = getattr(all_results,group_name)[required_define]
+            if required_define in getattr(all_results, group_name):
+                candidate_file = getattr(all_results, group_name)[required_define]
                 if dep_results_file:
                     # Check if it's the same file (legitimate duplicate from AC_DEFINE with subst=True)
                     if dep_results_file != candidate_file:
@@ -233,22 +231,22 @@ def _unique_name_file_map(label, all_required_defines, all_results):
     return name_to_file
 
 def _collect_required_defines(check):
-   all_required_defines = []
+    all_required_defines = []
 
-   for required in check.get("requires", []):
-       required_define = _extract_define_name(required)
-       all_required_defines.append(required_define)
+    for required in check.get("requires", []):
+        required_define = _extract_define_name(required)
+        all_required_defines.append(required_define)
 
-   condition = check.get("condition")
-   if condition:
-       required_define = _extract_define_name(condition)
-       all_required_defines.append(required_define)
+    condition = check.get("condition")
+    if condition:
+        required_define = _extract_define_name(condition)
+        all_required_defines.append(required_define)
 
-   for required in check.get("compile_defines", []):
-       required_define = _extract_define_name(required)
-       all_required_defines.append(required_define)
+    for required in check.get("compile_defines", []):
+        required_define = _extract_define_name(required)
+        all_required_defines.append(required_define)
 
-   return all_required_defines
+    return all_required_defines
 
 def _checks_to_build_info(ctx):
     """Implementation of the autoconf rule that only runs checks."""
@@ -272,7 +270,6 @@ def _checks_to_build_info(ctx):
     # variable from the compile action is crucial for finding standard headers like stdint.h
     env = get_environment_variables(ctx, toolchain_info)
 
-
     all_info = struct(
         env = env,
         config_json = config_json,
@@ -287,7 +284,7 @@ def _checks_to_build_info(ctx):
         actions = {},
         cache = {},
         define = {},
-        subst = {}
+        subst = {},
     )
 
     _add_all_checks(ctx, all_info)
@@ -299,9 +296,7 @@ def _checks_to_build_info(ctx):
 
     return all_info
 
-
 def _autoconf_impl(ctx):
-
     all_info = _checks_to_build_info(ctx)
 
     # Create individual CcAutoconfCheck actions for each cache variable
@@ -311,8 +306,6 @@ def _autoconf_impl(ctx):
         check_result_file = action.output
         check = action.check
         check_json = action.input
-
-        
 
         args = ctx.actions.args()
         args.use_param_file("@%s", use_always = True)
@@ -355,8 +348,6 @@ def _autoconf_impl(ctx):
             autoconf_results = depset(all_info.cache_results.values() + all_info.define_results.values() + all_info.subst_results.values()),
         ),
     ]
-    pass
-
 
 autoconf = rule(
     implementation = _autoconf_impl,
