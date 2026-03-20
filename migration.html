@@ -1,0 +1,1462 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Migrating M4 macros - rules_cc_autoconf</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rules_cc_autoconf</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/periareon/rules_cc_autoconf" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="m4-to-bazel-migration-guide"><a class="header" href="#m4-to-bazel-migration-guide">M4 to Bazel Migration Guide</a></h1>
+<p>This guide teaches how to convert GNU Autoconf M4 macros (from <code>configure.ac</code> files) to the equivalent Bazel rules in this repository.</p>
+<p><strong>Important Constraint:</strong> When porting gnulib modules or fixing failing tests, you may <strong>only</strong> modify <code>BUILD.bazel</code> files. The following are <strong>not</strong> allowed:</p>
+<ul>
+<li>Golden files (e.g. <code>golden_config*.h.in</code>, <code>golden_subst*.h.in</code>)</li>
+<li><code>configure.ac</code> files</li>
+<li><code>.bzl</code> files (autoconf rules, checks, macros, etc.)</li>
+<li>Duplicates targets (e.g. <code>//gnulib/tests/duplicates:gnulib</code> and its dependency list)</li>
+</ul>
+<p><strong>Resolving duplicate check conflicts:</strong> If two modules define the same check and cause a conflict when aggregated (e.g. in the duplicates test), do <em>not</em> remove either module from the duplicates list. Instead, create an isolated <code>autoconf</code> target that contains <em>only</em> the conflicting check, then add that target as a dependency to both consumers.</p>
+<hr />
+<h2 id="table-of-contents"><a class="header" href="#table-of-contents">Table of Contents</a></h2>
+<ol>
+<li><a href="#quick-start">Quick Start</a></li>
+<li><a href="#architecture-overview">Architecture Overview</a></li>
+<li><a href="#core-concepts">Core Concepts</a></li>
+<li><a href="#migration-patterns">Migration Patterns</a></li>
+<li><a href="#api-reference">API Reference</a></li>
+<li><a href="#platform-conditionals">Platform Conditionals</a></li>
+<li><a href="#dependencies-and-reusable-modules">Dependencies and Reusable Modules</a></li>
+<li><a href="#porting-strategy">Porting Strategy</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#cross-compilation-considerations">Cross-Compilation Considerations</a></li>
+<li><a href="#complete-examples">Complete Examples</a></li>
+</ol>
+<hr />
+<h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
+<h3 id="minimal-example"><a class="header" href="#minimal-example">Minimal Example</a></h3>
+<p><strong>M4 (configure.ac):</strong></p>
+<pre><code class="language-m4">AC_INIT([myproject], [1.0.0])
+AC_CONFIG_HEADERS([config.h])
+AC_CHECK_HEADERS([stdio.h stdlib.h])
+AC_CHECK_FUNCS([malloc printf])
+AC_OUTPUT
+</code></pre>
+<p><strong>Bazel (BUILD.bazel):</strong></p>
+<pre><code class="language-python">load("@rules_cc_autoconf//autoconf:autoconf.bzl", "autoconf")
+load("@rules_cc_autoconf//autoconf:autoconf_hdr.bzl", "autoconf_hdr")
+load("@rules_cc_autoconf//autoconf:checks.bzl", "checks")
+load("@rules_cc_autoconf//autoconf:package_info.bzl", "package_info")
+
+package_info(
+    name = "package",
+    package_name = "myproject",
+    package_version = "1.0.0",
+)
+
+autoconf(
+    name = "autoconf",
+    checks = [
+        checks.AC_CHECK_HEADER("stdio.h", define = "HAVE_STDIO_H"),
+        checks.AC_CHECK_HEADER("stdlib.h", define = "HAVE_STDLIB_H"),
+        checks.AC_CHECK_FUNC("malloc", define = "HAVE_MALLOC"),
+        checks.AC_CHECK_FUNC("printf", define = "HAVE_PRINTF"),
+    ],
+    deps = [":package"],
+)
+
+autoconf_hdr(
+    name = "config",
+    out = "config.h",
+    template = "config.h.in",
+    deps = [":autoconf"],
+)
+</code></pre>
+<hr />
+<h2 id="architecture-overview"><a class="header" href="#architecture-overview">Architecture Overview</a></h2>
+<p>The migration system consists of three main components:</p>
+<h3 id="1-autoconf-rule"><a class="header" href="#1-autoconf-rule">1. <code>autoconf</code> Rule</a></h3>
+<p>Runs compilation checks against the configured <code>cc_toolchain</code> and produces check results. Each check creates a <strong>cache variable</strong> (e.g., <code>ac_cv_header_stdio_h</code>) and optionally a <strong>define</strong> (e.g., <code>HAVE_STDIO_H</code>) or <strong>subst</strong> value.</p>
+<h3 id="2-autoconf_hdr-rule"><a class="header" href="#2-autoconf_hdr-rule">2. <code>autoconf_hdr</code> Rule</a></h3>
+<p>Takes check results from <code>autoconf</code> targets and generates header files by processing templates. Supports two modes:</p>
+<ul>
+<li><code>mode = "defines"</code> — For <code>config.h</code> files (processes <code>#undef</code> directives)</li>
+<li><code>mode = "subst"</code> — For substitution files (processes <code>@VAR@</code> placeholders)</li>
+</ul>
+<h3 id="3-package_info-rule"><a class="header" href="#3-package_info-rule">3. <code>package_info</code> Rule</a></h3>
+<p>Provides package metadata (<code>PACKAGE_NAME</code>, <code>PACKAGE_VERSION</code>, etc.) equivalent to <code>AC_INIT</code>.</p>
+<h3 id="data-flow"><a class="header" href="#data-flow">Data Flow</a></h3>
+<pre><code>configure.ac         →    BUILD.bazel
+     ↓                         ↓
+AC_INIT           →    package_info
+AC_CHECK_*        →    autoconf (checks = [...])
+AC_CONFIG_HEADERS →    autoconf_hdr
+</code></pre>
+<hr />
+<h2 id="core-concepts"><a class="header" href="#core-concepts">Core Concepts</a></h2>
+<h3 id="cache-variables-vs-defines-vs-subst"><a class="header" href="#cache-variables-vs-defines-vs-subst">Cache Variables vs Defines vs Subst</a></h3>
+<p>Understanding the three types of outputs is crucial:</p>
+<div class="table-wrapper"><table><thead><tr><th>Type</th><th>Purpose</th><th>Naming Convention</th><th>Output</th></tr></thead><tbody>
+<tr><td><strong>Cache Variable</strong></td><td>Internal check result</td><td><code>ac_cv_*</code> (e.g., <code>ac_cv_header_stdio_h</code>)</td><td>JSON result file</td></tr>
+<tr><td><strong>Define</strong></td><td>C preprocessor define</td><td><code>HAVE_*</code>, <code>SIZEOF_*</code>, etc.</td><td><code>config.h</code> via <code>#define</code></td></tr>
+<tr><td><strong>Subst</strong></td><td>Template substitution</td><td><code>@VAR@</code> patterns</td><td><code>subst.h</code> via placeholder replacement</td></tr>
+</tbody></table>
+</div>
+<p><strong>Example:</strong></p>
+<pre><code class="language-python"># Creates ONLY a cache variable (no define, no subst)
+checks.AC_CHECK_HEADER("stdio.h")
+# → Cache: ac_cv_header_stdio_h
+
+# Creates cache variable AND define
+checks.AC_CHECK_HEADER("stdio.h", define = "HAVE_STDIO_H")
+# → Cache: ac_cv_header_stdio_h
+# → Define: HAVE_STDIO_H (in config.h)
+
+# Creates cache variable, define, AND subst
+checks.AC_CHECK_HEADER("stdio.h", define = "HAVE_STDIO_H", subst = True)
+# → Cache: ac_cv_header_stdio_h
+# → Define: HAVE_STDIO_H (in config.h)
+# → Subst: HAVE_STDIO_H (replaces @HAVE_STDIO_H@ in subst.h)
+</code></pre>
+<h3 id="the-name-parameter"><a class="header" href="#the-name-parameter">The <code>name</code> Parameter</a></h3>
+<p>Every check has a <code>name</code> parameter (auto-generated if not specified) that becomes the cache variable name:</p>
+<pre><code class="language-python"># Auto-generated name: "ac_cv_header_stdio_h"
+checks.AC_CHECK_HEADER("stdio.h")
+
+# Custom name
+checks.AC_CHECK_HEADER("stdio.h", name = "my_custom_cache_var")
+</code></pre>
+<h3 id="the-define-parameter"><a class="header" href="#the-define-parameter">The <code>define</code> Parameter</a></h3>
+<p>Controls whether and how a define is created:</p>
+<pre><code class="language-python"># No define (default) — only creates cache variable
+checks.AC_CHECK_HEADER("stdio.h")
+
+# Use cache variable name as define name
+checks.AC_CHECK_HEADER("stdio.h", define = True)
+# → Define name: ac_cv_header_stdio_h
+
+# Explicit define name
+checks.AC_CHECK_HEADER("stdio.h", define = "HAVE_STDIO_H")
+# → Define name: HAVE_STDIO_H
+</code></pre>
+<h3 id="efficiency-define-vs-name--separate-ac_define"><a class="header" href="#efficiency-define-vs-name--separate-ac_define">Efficiency: <code>define</code> vs. <code>name</code> + separate <code>AC_DEFINE</code></a></h3>
+<p>There are two ways to conditionally define a value based on a check result. <strong>Prefer <code>define</code> when possible</strong> — it's more efficient because it generates fewer internal operations.</p>
+<h4 id="use-define-directly-preferred"><a class="header" href="#use-define-directly-preferred">Use <code>define</code> directly (preferred)</a></h4>
+<p>When you just need to set <code>HAVE_X</code> based on whether a check succeeds:</p>
+<pre><code class="language-python"># EFFICIENT: One check, one define
+checks.AC_CHECK_HEADER("argz.h", define = "HAVE_ARGZ_H")
+</code></pre>
+<p>This is equivalent to M4's <code>AC_CHECK_HEADER([argz.h])</code> which automatically defines <code>HAVE_ARGZ_H</code> if the header is found.</p>
+<h4 id="use-name--ac_definerequires-only-when-necessary"><a class="header" href="#use-name--ac_definerequires-only-when-necessary">Use <code>name</code> + <code>AC_DEFINE(requires=...)</code> only when necessary</a></h4>
+<p>Split the check and define <strong>only</strong> when one of these conditions applies:</p>
+<ol>
+<li><strong>Other checks reference the cache variable</strong> via <code>requires</code>:</li>
+</ol>
+<pre><code class="language-python"># REQUIRED: The cache variable is used by another check's `requires`
+checks.AC_CHECK_HEADER("argz.h", name = "ac_cv_header_argz_h")
+checks.AC_DEFINE("HAVE_ARGZ_H", requires = ["ac_cv_header_argz_h==1"])
+
+# This check depends on the header being found
+checks.AC_CHECK_TYPE(
+    "error_t",
+    includes = ["#include &lt;argz.h&gt;"],
+    name = "ac_cv_type_error_t",
+    requires = ["ac_cv_header_argz_h==1"],  # &lt;-- Only run if header check passed
+)
+</code></pre>
+<ol start="2">
+<li><strong>Non-standard values</strong> (use <code>condition</code> for value selection):</li>
+</ol>
+<pre><code class="language-python"># Use condition when you need different values based on a check
+checks.AC_CHECK_FUNC("foo", name = "ac_cv_func_foo")
+checks.AC_DEFINE("HAVE_FOO", condition = "ac_cv_func_foo", if_true = "yes", if_false = "no")
+</code></pre>
+<ol start="3">
+<li><strong>Multiple outputs from one check</strong> (both <code>AC_DEFINE</code> and <code>AC_SUBST</code>):</li>
+</ol>
+<pre><code class="language-python"># One check drives multiple outputs
+checks.AC_CHECK_FUNC("lstat", name = "ac_cv_func_lstat")
+checks.AC_DEFINE("HAVE_LSTAT", requires = ["ac_cv_func_lstat==1"])
+checks.AC_SUBST("HAVE_LSTAT", condition = "ac_cv_func_lstat", if_true = "1", if_false = "0")
+</code></pre>
+<h4 id="requires-vs-condition"><a class="header" href="#requires-vs-condition"><code>requires</code> vs. <code>condition</code></a></h4>
+<p>Use the correct parameter for the right purpose:</p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Purpose</th><th>Example</th></tr></thead><tbody>
+<tr><td><code>requires</code></td><td><strong>Gate whether the check runs</strong> — if requirements aren't met, the define is not created</td><td><code>requires = ["ac_cv_func_foo==1"]</code></td></tr>
+<tr><td><code>condition</code></td><td><strong>Select between two values</strong> — the check always runs, but produces different values</td><td><code>condition = "ac_cv_func_foo", if_true = "1", if_false = "0"</code></td></tr>
+</tbody></table>
+</div>
+<p><strong>Anti-pattern:</strong> Don't use <code>condition</code> with <code>if_false = None</code> to gate a define:</p>
+<pre><code class="language-python"># BAD: Using condition to gate (if_false = None behavior may change)
+checks.AC_DEFINE("HAVE_FOO", condition = "ac_cv_func_foo", if_true = 1, if_false = None)
+
+# GOOD: Use requires to gate
+checks.AC_DEFINE("HAVE_FOO", requires = ["ac_cv_func_foo==1"])
+</code></pre>
+<h4 id="anti-pattern-unnecessary-splitting"><a class="header" href="#anti-pattern-unnecessary-splitting">Anti-pattern: Unnecessary splitting</a></h4>
+<p><strong>Don't do this</strong> — it's wasteful and harder to read:</p>
+<pre><code class="language-python"># BAD: Unnecessary split when `define` would suffice
+checks.AC_CHECK_HEADER("stdio.h", name = "ac_cv_header_stdio_h")
+checks.AC_DEFINE("HAVE_STDIO_H", requires = ["ac_cv_header_stdio_h==1"])
+
+# GOOD: Use `define` directly
+checks.AC_CHECK_HEADER("stdio.h", define = "HAVE_STDIO_H")
+</code></pre>
+<hr />
+<h2 id="migration-patterns"><a class="header" href="#migration-patterns">Migration Patterns</a></h2>
+<h3 id="pattern-1-simple-header-checks"><a class="header" href="#pattern-1-simple-header-checks">Pattern 1: Simple Header Checks</a></h3>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">AC_CHECK_HEADER([stdio.h])
+AC_CHECK_HEADERS([stdlib.h string.h unistd.h])
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">checks.AC_CHECK_HEADER("stdio.h", define = "HAVE_STDIO_H")
+checks.AC_CHECK_HEADER("stdlib.h", define = "HAVE_STDLIB_H")
+checks.AC_CHECK_HEADER("string.h", define = "HAVE_STRING_H")
+checks.AC_CHECK_HEADER("unistd.h", define = "HAVE_UNISTD_H")
+</code></pre>
+<p><strong>Rules:</strong></p>
+<ul>
+<li>Remove square brackets, add quotes</li>
+<li>Split <code>AC_CHECK_HEADERS</code> (plural) into individual <code>AC_CHECK_HEADER</code> calls</li>
+<li>Add <code>define = "HAVE_&lt;HEADER&gt;"</code> to create defines in <code>config.h</code></li>
+</ul>
+<hr />
+<h3 id="pattern-2-function-checks"><a class="header" href="#pattern-2-function-checks">Pattern 2: Function Checks</a></h3>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">AC_CHECK_FUNC([malloc])
+AC_CHECK_FUNCS([printf scanf fopen])
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">checks.AC_CHECK_FUNC("malloc", define = "HAVE_MALLOC")
+checks.AC_CHECK_FUNC("printf", define = "HAVE_PRINTF")
+checks.AC_CHECK_FUNC("scanf", define = "HAVE_SCANF")
+checks.AC_CHECK_FUNC("fopen", define = "HAVE_FOPEN")
+</code></pre>
+<p><strong>Rules:</strong></p>
+<ul>
+<li>Use the GNU Autoconf extern declaration pattern automatically</li>
+<li>Add <code>define = "HAVE_&lt;FUNCTION&gt;"</code> for config.h defines</li>
+</ul>
+<hr />
+<h3 id="pattern-3-type-checks"><a class="header" href="#pattern-3-type-checks">Pattern 3: Type Checks</a></h3>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">AC_CHECK_TYPE([size_t])
+AC_CHECK_TYPES([int8_t, int64_t], [], [], [[#include &lt;stdint.h&gt;]])
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python"># Without explicit includes (uses AC_INCLUDES_DEFAULT)
+checks.AC_CHECK_TYPE("size_t", define = "HAVE_SIZE_T")
+
+# With explicit includes
+checks.AC_CHECK_TYPE("int8_t", define = "HAVE_INT8_T", includes = ["#include &lt;stdint.h&gt;"])
+checks.AC_CHECK_TYPE("int64_t", define = "HAVE_INT64_T", includes = ["#include &lt;stdint.h&gt;"])
+</code></pre>
+<hr />
+<h3 id="pattern-4-declaration-checks"><a class="header" href="#pattern-4-declaration-checks">Pattern 4: Declaration Checks</a></h3>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">AC_CHECK_DECL([NULL], [], [], [[#include &lt;stddef.h&gt;]])
+AC_CHECK_DECLS([execvpe], [], [], [[#include &lt;unistd.h&gt;]])
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">checks.AC_CHECK_DECL("NULL", define = "HAVE_DECL_NULL", includes = ["#include &lt;stddef.h&gt;"])
+checks.AC_CHECK_DECL("execvpe", define = "HAVE_DECL_EXECVPE", includes = ["#include &lt;unistd.h&gt;"])
+</code></pre>
+<p><strong>Note:</strong> <code>AC_CHECK_DECL</code> differs from <code>AC_CHECK_FUNC</code> — it checks if something is <em>declared</em> (not just defined as a macro).</p>
+<hr />
+<h3 id="pattern-5-member-checks"><a class="header" href="#pattern-5-member-checks">Pattern 5: Member Checks</a></h3>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">AC_CHECK_MEMBER([struct stat.st_rdev], [], [], [[#include &lt;sys/stat.h&gt;]])
+AC_CHECK_MEMBERS([struct tm.tm_zone, struct stat.st_blocks])
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">checks.AC_CHECK_MEMBER(
+    "struct stat.st_rdev",
+    define = "HAVE_STRUCT_STAT_ST_RDEV",
+    includes = ["#include &lt;sys/stat.h&gt;"],
+)
+checks.AC_CHECK_MEMBER(
+    "struct tm.tm_zone",
+    define = "HAVE_STRUCT_TM_TM_ZONE",
+    includes = ["#include &lt;time.h&gt;"],
+)
+</code></pre>
+<hr />
+<h3 id="pattern-6-size-and-alignment-checks"><a class="header" href="#pattern-6-size-and-alignment-checks">Pattern 6: Size and Alignment Checks</a></h3>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">AC_CHECK_SIZEOF([int])
+AC_CHECK_SIZEOF([size_t], [], [[#include &lt;stddef.h&gt;]])
+AC_CHECK_ALIGNOF([double])
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">checks.AC_CHECK_SIZEOF("int", define = "SIZEOF_INT")
+checks.AC_CHECK_SIZEOF("size_t", define = "SIZEOF_SIZE_T", includes = ["#include &lt;stddef.h&gt;"])
+checks.AC_CHECK_ALIGNOF("double", define = "ALIGNOF_DOUBLE")
+</code></pre>
+<p><strong>Warning:</strong> These macros are NOT cross-compile friendly (see <a href="#cross-compilation-considerations">Cross-Compilation</a>).</p>
+<hr />
+<h3 id="pattern-7-library-checks"><a class="header" href="#pattern-7-library-checks">Pattern 7: Library Checks</a></h3>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">AC_CHECK_LIB([m], [cos])
+AC_CHECK_LIB([pthread], [pthread_create])
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">checks.AC_CHECK_LIB("m", "cos", define = "HAVE_LIBM")
+checks.AC_CHECK_LIB("pthread", "pthread_create", define = "HAVE_LIBPTHREAD")
+</code></pre>
+<hr />
+<h3 id="pattern-8-compiler-flag-checks"><a class="header" href="#pattern-8-compiler-flag-checks">Pattern 8: Compiler Flag Checks</a></h3>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">AC_MSG_CHECKING([whether $CC accepts -Wall])
+save_CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS -Wall"
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
+  [AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_FLAG_WALL], [1])],
+  [AC_MSG_RESULT([no])])
+CFLAGS="$save_CFLAGS"
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">checks.AC_CHECK_C_COMPILER_FLAG("-Wall", define = "HAVE_FLAG_WALL")
+checks.AC_CHECK_CXX_COMPILER_FLAG("-std=c++17", define = "HAVE_FLAG_STD_C__17")
+</code></pre>
+<hr />
+<h3 id="pattern-9-custom-compile-tests"><a class="header" href="#pattern-9-custom-compile-tests">Pattern 9: Custom Compile Tests</a></h3>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include &lt;stdatomic.h&gt;
+]], [[
+atomic_int x = 0;
+(void)x;
+]])], [AC_DEFINE([HAVE_STDATOMIC], [1])], [])
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">checks.AC_TRY_COMPILE(
+    code = """
+#include &lt;stdatomic.h&gt;
+int main(void) {
+    atomic_int x = 0;
+    (void)x;
+    return 0;
+}
+""",
+    define = "HAVE_STDATOMIC",
+)
+</code></pre>
+<p><strong>Alternative using <code>utils.AC_LANG_PROGRAM</code>:</strong></p>
+<pre><code class="language-python">load("//autoconf:checks.bzl", "checks", "utils")
+
+checks.AC_TRY_COMPILE(
+    code = utils.AC_LANG_PROGRAM(
+        ["#include &lt;stdatomic.h&gt;"],  # prologue
+        "atomic_int x = 0; (void)x;",  # body of main()
+    ),
+    define = "HAVE_STDATOMIC",
+)
+</code></pre>
+<hr />
+<h3 id="pattern-10-link-tests"><a class="header" href="#pattern-10-link-tests">Pattern 10: Link Tests</a></h3>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#include &lt;langinfo.h&gt;
+]], [[
+char* cs = nl_langinfo(CODESET);
+return !cs;
+]])], [AC_DEFINE([HAVE_LANGINFO_CODESET], [1])], [])
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">checks.AC_TRY_LINK(
+    code = utils.AC_LANG_PROGRAM(
+        ["#include &lt;langinfo.h&gt;"],
+        "char* cs = nl_langinfo(CODESET); return !cs;",
+    ),
+    define = "HAVE_LANGINFO_CODESET",
+)
+</code></pre>
+<hr />
+<h3 id="pattern-11-unconditional-defines"><a class="header" href="#pattern-11-unconditional-defines">Pattern 11: Unconditional Defines</a></h3>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">AC_DEFINE([CUSTOM_VALUE], [42])
+AC_DEFINE([ENABLE_FEATURE], [1])
+AC_DEFINE([PROJECT_NAME], ["MyProject"])
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">checks.AC_DEFINE("CUSTOM_VALUE", "42")
+checks.AC_DEFINE("ENABLE_FEATURE", "1")
+checks.AC_DEFINE("PROJECT_NAME", '"MyProject"')  # Note: inner quotes for string literal
+</code></pre>
+<hr />
+<h3 id="pattern-12-conditional-defines"><a class="header" href="#pattern-12-conditional-defines">Pattern 12: Conditional Defines</a></h3>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">if test "$ac_cv_func_lstat" = yes; then
+  AC_DEFINE([HAVE_LSTAT], [1])
+fi
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python"># Gate the define on the check result
+checks.AC_DEFINE(
+    "HAVE_LSTAT",
+    requires = ["ac_cv_func_lstat==1"],  # Only define if check passed
+)
+</code></pre>
+<hr />
+<h3 id="pattern-13-substitution-variables-ac_subst"><a class="header" href="#pattern-13-substitution-variables-ac_subst">Pattern 13: Substitution Variables (AC_SUBST)</a></h3>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">REPLACE_FSTAT=1
+AC_SUBST([REPLACE_FSTAT])
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">checks.AC_SUBST("REPLACE_FSTAT", "1")
+</code></pre>
+<p>For conditional subst values:</p>
+<pre><code class="language-python">checks.AC_SUBST(
+    "REPLACE_STRERROR",
+    condition = "_gl_cv_func_strerror_0_works",
+    if_true = "0",
+    if_false = "1",
+)
+</code></pre>
+<hr />
+<h3 id="pattern-14-m4-shell-variables"><a class="header" href="#pattern-14-m4-shell-variables">Pattern 14: M4 Shell Variables</a></h3>
+<p>Many M4 macros use shell variables (not <code>AC_DEFINE</code> calls). Use <code>M4_VARIABLE</code> to track these:</p>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">REPLACE_FSTAT=1
+HAVE_WORKING_MKTIME=0
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">checks.M4_VARIABLE("REPLACE_FSTAT", "1")
+checks.M4_VARIABLE("HAVE_WORKING_MKTIME", "0")
+</code></pre>
+<hr />
+<h3 id="pattern-15-language-selection"><a class="header" href="#pattern-15-language-selection">Pattern 15: Language Selection</a></h3>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">AC_LANG_PUSH([C++])
+AC_CHECK_HEADER([iostream])
+AC_LANG_POP([C++])
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">checks.AC_CHECK_HEADER("iostream", define = "HAVE_IOSTREAM", language = "cpp")
+</code></pre>
+<hr />
+<h3 id="pattern-16-dependencies-with-requires"><a class="header" href="#pattern-16-dependencies-with-requires">Pattern 16: Dependencies with <code>requires</code></a></h3>
+<p>When a check depends on a previous check's result:</p>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">AC_CHECK_HEADER([stdio.h])
+AC_CHECK_FUNC([fopen], [], [], [[#include &lt;stdio.h&gt;]])
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">checks.AC_CHECK_HEADER("stdio.h", define = "HAVE_STDIO_H")
+checks.AC_CHECK_FUNC(
+    "fopen",
+    define = "HAVE_FOPEN",
+    requires = ["HAVE_STDIO_H"],  # Only check if stdio.h exists
+)
+</code></pre>
+<p><strong>Value-based requirements:</strong></p>
+<pre><code class="language-python">checks.AC_CHECK_FUNC(
+    "fstat64",
+    define = "HAVE_FSTAT64",
+    requires = ["REPLACE_FSTAT=1"],  # Only if REPLACE_FSTAT equals "1"
+)
+</code></pre>
+<hr />
+<h3 id="pattern-17-compile-defines"><a class="header" href="#pattern-17-compile-defines">Pattern 17: Compile Defines</a></h3>
+<p>When test code needs defines from previous checks:</p>
+<pre><code class="language-python">checks.AC_TRY_COMPILE(
+    code = """
+#include &lt;sys/stat.h&gt;
+int main(void) {
+    struct stat s;
+    return s.st_rdev;
+}
+""",
+    define = "HAVE_ST_RDEV",
+    compile_defines = ["_GNU_SOURCE", "_DARWIN_C_SOURCE"],
+)
+</code></pre>
+<hr />
+<h2 id="api-reference"><a class="header" href="#api-reference">API Reference</a></h2>
+<h3 id="checks-struct--singular-macros"><a class="header" href="#checks-struct--singular-macros"><code>checks</code> Struct — Singular Macros</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Macro</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>AC_CHECK_HEADER(header, ...)</code></td><td>Check for a header file</td></tr>
+<tr><td><code>AC_CHECK_FUNC(function, ...)</code></td><td>Check for a function</td></tr>
+<tr><td><code>AC_CHECK_TYPE(type_name, ...)</code></td><td>Check for a type</td></tr>
+<tr><td><code>AC_CHECK_DECL(symbol, ...)</code></td><td>Check for a declaration</td></tr>
+<tr><td><code>AC_CHECK_MEMBER(aggregate.member, ...)</code></td><td>Check for a struct/union member</td></tr>
+<tr><td><code>AC_CHECK_SIZEOF(type_name, ...)</code></td><td>Check size of a type</td></tr>
+<tr><td><code>AC_CHECK_ALIGNOF(type_name, ...)</code></td><td>Check alignment of a type</td></tr>
+<tr><td><code>AC_CHECK_LIB(library, function, ...)</code></td><td>Check for a function in a library</td></tr>
+<tr><td><code>AC_TRY_COMPILE(code=..., ...)</code></td><td>Try to compile custom code</td></tr>
+<tr><td><code>AC_TRY_LINK(code=..., ...)</code></td><td>Try to compile and link custom code</td></tr>
+<tr><td><code>AC_DEFINE(define, value=1, ...)</code></td><td>Define a preprocessor macro</td></tr>
+<tr><td><code>AC_DEFINE_UNQUOTED(define, ...)</code></td><td>Define with unquoted value</td></tr>
+<tr><td><code>AC_SUBST(variable, value=1, ...)</code></td><td>Create a substitution variable</td></tr>
+<tr><td><code>M4_VARIABLE(define, value=1, ...)</code></td><td>Track M4 shell variables</td></tr>
+<tr><td><code>AC_PROG_CC()</code></td><td>Check for C compiler</td></tr>
+<tr><td><code>AC_PROG_CXX()</code></td><td>Check for C++ compiler</td></tr>
+<tr><td><code>AC_C_BIGENDIAN()</code></td><td>Check byte order</td></tr>
+<tr><td><code>AC_C_INLINE()</code></td><td>Check for inline keyword</td></tr>
+<tr><td><code>AC_C_RESTRICT()</code></td><td>Check for restrict keyword</td></tr>
+<tr><td><code>AC_COMPUTE_INT(define, expression, ...)</code></td><td>Compute integer at compile time</td></tr>
+<tr><td><code>AC_CHECK_C_COMPILER_FLAG(flag, ...)</code></td><td>Check C compiler flag</td></tr>
+<tr><td><code>AC_CHECK_CXX_COMPILER_FLAG(flag, ...)</code></td><td>Check C++ compiler flag</td></tr>
+</tbody></table>
+</div>
+<h3 id="macros-struct--plural-macros"><a class="header" href="#macros-struct--plural-macros"><code>macros</code> Struct — Plural Macros</a></h3>
+<p>These return lists of checks with auto-generated define names:</p>
+<div class="table-wrapper"><table><thead><tr><th>Macro</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>AC_CHECK_HEADERS(headers, ...)</code></td><td>Check multiple headers</td></tr>
+<tr><td><code>AC_CHECK_FUNCS(functions, ...)</code></td><td>Check multiple functions</td></tr>
+<tr><td><code>AC_CHECK_TYPES(types, ...)</code></td><td>Check multiple types</td></tr>
+<tr><td><code>AC_CHECK_DECLS(symbols, ...)</code></td><td>Check multiple declarations</td></tr>
+<tr><td><code>AC_CHECK_MEMBERS(members, ...)</code></td><td>Check multiple struct members</td></tr>
+</tbody></table>
+</div>
+<h3 id="utils-struct--helper-functions"><a class="header" href="#utils-struct--helper-functions"><code>utils</code> Struct — Helper Functions</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>AC_LANG_PROGRAM(prologue, body)</code></td><td>Build program code from prologue and body</td></tr>
+<tr><td><code>AC_INCLUDES_DEFAULT</code></td><td>Default includes (stdio.h, stdlib.h, etc.)</td></tr>
+</tbody></table>
+</div>
+<h3 id="common-parameters"><a class="header" href="#common-parameters">Common Parameters</a></h3>
+<p>Most macros support these parameters:</p>
+<div class="table-wrapper"><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>string</td><td>Cache variable name (auto-generated if omitted)</td></tr>
+<tr><td><code>define</code></td><td>string/bool</td><td>Define name or <code>True</code> to use cache var name</td></tr>
+<tr><td><code>includes</code></td><td>list</td><td>Include directives (e.g., <code>["#include &lt;stdio.h&gt;"]</code>)</td></tr>
+<tr><td><code>language</code></td><td>string</td><td><code>"c"</code> or <code>"cpp"</code></td></tr>
+<tr><td><code>requires</code></td><td>list</td><td>Dependencies that must be satisfied</td></tr>
+<tr><td><code>compile_defines</code></td><td>list</td><td>Defines to add before compilation</td></tr>
+<tr><td><code>condition</code></td><td>string</td><td>Condition for value selection</td></tr>
+<tr><td><code>if_true</code></td><td>any</td><td>Value when condition is true</td></tr>
+<tr><td><code>if_false</code></td><td>any</td><td>Value when condition is false</td></tr>
+<tr><td><code>subst</code></td><td>bool/string</td><td>Also create substitution variable</td></tr>
+</tbody></table>
+</div>
+<hr />
+<h2 id="platform-conditionals"><a class="header" href="#platform-conditionals">Platform Conditionals</a></h2>
+<h3 id="prefer-actual-checks-over-selectac_define"><a class="header" href="#prefer-actual-checks-over-selectac_define">Prefer actual checks over select()+AC_DEFINE</a></h3>
+<p><strong>Do not</strong> use <code>select()</code> to gate <code>AC_DEFINE</code> or <code>AC_SUBST</code> for feature macros (e.g. <code>HAVE_FOO</code>) when the M4 performs a real check. Use the actual check so the result reflects the toolchain/platform.</p>
+<p>When M4 uses a check macro such as:</p>
+<ul>
+<li><code>gl_CHECK_FUNCS_ANDROID([func], [[#include &lt;header.h&gt;]])</code></li>
+<li><code>AC_CHECK_FUNC([func])</code></li>
+<li><code>AC_CHECK_HEADER([header.h])</code></li>
+</ul>
+<p><strong>Prefer:</strong></p>
+<ol>
+<li><strong>Bazel equivalent check</strong> — e.g. <code>gl_macros.GL_CHECK_FUNCS_ANDROID(["func"], includes = ["#include &lt;header.h&gt;"])</code> or <code>checks.AC_CHECK_FUNC("func", define = "HAVE_FUNC", subst = "HAVE_FUNC")</code>.</li>
+<li><strong>Depend on the gnulib module</strong> that already implements the check — e.g. <code>deps = ["//gnulib/m4/timespec_getres:gl_FUNC_TIMESPEC_GETRES"]</code> instead of defining <code>HAVE_TIMESPEC_GETRES</code> via <code>select()</code>.</li>
+</ol>
+<p><strong>Avoid:</strong></p>
+<ul>
+<li><code>select({ "@platforms//os:linux": [checks.AC_DEFINE("HAVE_FOO", "1")], "//conditions:default": [] })</code> to hardcode a feature per platform.</li>
+<li>Duplicating the same check in multiple targets; depend on the canonical module that performs it.</li>
+</ul>
+<p>This keeps config consistent with the actual build environment and avoids duplicate definitions when targets are aggregated (e.g. <code>//gnulib/tests/duplicates:gnulib</code>).</p>
+<h3 id="using-select-for-platform-specific-checks"><a class="header" href="#using-select-for-platform-specific-checks">Using <code>select()</code> for Platform-Specific Checks</a></h3>
+<p><strong>M4:</strong></p>
+<pre><code class="language-m4">AC_REQUIRE([AC_CANONICAL_HOST])
+case "$host_os" in
+  mingw* | windows*)
+    REPLACE_ACCESS=1
+    ;;
+  darwin*)
+    REPLACE_FSTAT=1
+    ;;
+  *)
+    ;;
+esac
+</code></pre>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">autoconf(
+    name = "fstat",
+    checks = select({
+        "@platforms//os:windows": [
+            checks.AC_SUBST("REPLACE_FSTAT", "1"),
+        ],
+        "@platforms//os:macos": [
+            checks.AC_SUBST("REPLACE_FSTAT", "1"),
+        ],
+        "//conditions:default": [],
+    }),
+    visibility = ["//visibility:public"],
+)
+</code></pre>
+<h3 id="common-platform-constraints"><a class="header" href="#common-platform-constraints">Common Platform Constraints</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>M4 Pattern</th><th>Bazel Constraint</th></tr></thead><tbody>
+<tr><td><code>mingw*</code>, <code>windows*</code></td><td><code>@platforms//os:windows</code></td></tr>
+<tr><td><code>darwin*</code></td><td><code>@platforms//os:macos</code></td></tr>
+<tr><td><code>linux*</code></td><td><code>@platforms//os:linux</code></td></tr>
+<tr><td><code>freebsd*</code></td><td><code>@platforms//os:freebsd</code></td></tr>
+<tr><td><code>openbsd*</code></td><td><code>@platforms//os:openbsd</code></td></tr>
+<tr><td>Default (<code>*</code>)</td><td><code>"//conditions:default"</code></td></tr>
+</tbody></table>
+</div>
+<h3 id="combining-platform-specific-and-common-checks"><a class="header" href="#combining-platform-specific-and-common-checks">Combining Platform-Specific and Common Checks</a></h3>
+<pre><code class="language-python">autoconf(
+    name = "lstat",
+    checks = [
+        # Common checks for all platforms
+        checks.AC_CHECK_FUNC("lstat", define = "HAVE_LSTAT"),
+    ] + select({
+        "@platforms//os:macos": [
+            checks.AC_SUBST("REPLACE_LSTAT", "1"),
+        ],
+        "//conditions:default": [
+            checks.AC_SUBST("REPLACE_LSTAT", "0"),
+        ],
+    }),
+    visibility = ["//visibility:public"],
+)
+</code></pre>
+<hr />
+<h2 id="dependencies-and-reusable-modules"><a class="header" href="#dependencies-and-reusable-modules">Dependencies and Reusable Modules</a></h2>
+<h3 id="using-pre-built-gnulibm4-targets"><a class="header" href="#using-pre-built-gnulibm4-targets">Using Pre-built <code>//gnulib/m4</code> Targets</a></h3>
+<p>Many common checks are already implemented in <code>@rules_cc_autoconf//gnulib/m4/</code>. Use these to avoid duplication:</p>
+<p><strong>Before (manual checks):</strong></p>
+<pre><code class="language-python">autoconf(
+    name = "autoconf",
+    checks = [
+        checks.AC_CHECK_FUNC("lstat", define = "HAVE_LSTAT"),
+        checks.AC_CHECK_HEADER("sys/stat.h", define = "HAVE_SYS_STAT_H"),
+    ],
+)
+</code></pre>
+<p><strong>After (using gnulib modules):</strong></p>
+<pre><code class="language-python">autoconf(
+    name = "autoconf",
+    checks = [
+        # Only add checks not provided by gnulib modules
+    ],
+    deps = [
+        "//gnulib/m4/lstat",      # Provides lstat checks
+        "//gnulib/m4/sys_stat_h", # Provides sys/stat.h checks
+    ],
+)
+</code></pre>
+<h3 id="common-patterns-for-gnulib-target-names"><a class="header" href="#common-patterns-for-gnulib-target-names">Common Patterns for gnulib Target Names</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Check Type</th><th>Target Pattern</th><th>Example</th></tr></thead><tbody>
+<tr><td>Function</td><td><code>//gnulib/m4/&lt;func&gt;</code></td><td><code>//gnulib/m4/lstat</code></td></tr>
+<tr><td>Header</td><td><code>//gnulib/m4/&lt;header&gt;_h</code></td><td><code>//gnulib/m4/sys_stat_h</code></td></tr>
+<tr><td>Type</td><td><code>//gnulib/m4/&lt;type&gt;</code></td><td><code>//gnulib/m4/off_t</code></td></tr>
+</tbody></table>
+</div>
+<h3 id="declaring-dependencies-between-modules"><a class="header" href="#declaring-dependencies-between-modules">Declaring Dependencies Between Modules</a></h3>
+<p>When creating reusable modules, use <code>deps</code> to express <code>AC_REQUIRE</code> relationships:</p>
+<pre><code class="language-python"># gl_FUNC_LSTAT from lstat.m4
+autoconf(
+    name = "lstat",
+    checks = [
+        checks.AC_CHECK_FUNC("lstat", define = "HAVE_LSTAT"),
+    ],
+    deps = [
+        ":gl_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK",  # AC_REQUIRE
+        "//autoconf/macros/AC_CANONICAL_HOST",
+    ],
+)
+</code></pre>
+<hr />
+<h2 id="porting-strategy"><a class="header" href="#porting-strategy">Porting Strategy</a></h2>
+<p>When porting a gnulib M4 module to Bazel, follow this systematic approach:</p>
+<h3 id="step-1-fetch-and-analyze-the-original-m4-file"><a class="header" href="#step-1-fetch-and-analyze-the-original-m4-file">Step 1: Fetch and Analyze the Original M4 File</a></h3>
+<p>First, read the original M4 file to understand its structure. The M4 file typically contains multiple <code>AC_DEFUN</code> macro definitions.</p>
+<pre><code class="language-m4"># Example: c32rtomb.m4
+AC_DEFUN([gl_FUNC_C32RTOMB],           # Line 10 - Main function
+[
+  AC_REQUIRE([gl_UCHAR_H_DEFAULTS])    # Dependency (ignore _DEFAULTS)
+  AC_REQUIRE([AC_CANONICAL_HOST])       # Dependency
+  AC_REQUIRE([gl_MBRTOC32_SANITYCHECK]) # Dependency
+  AC_REQUIRE([gl_C32RTOMB_SANITYCHECK]) # Dependency
+  AC_REQUIRE([gl_CHECK_FUNC_C32RTOMB])  # Dependency
+  ...
+])
+
+AC_DEFUN([gl_CHECK_FUNC_C32RTOMB],     # Line 59 - Helper function
+[
+  ...
+])
+
+AC_DEFUN([gl_C32RTOMB_SANITYCHECK],    # Line 94 - Sanity check
+[
+  AC_REQUIRE([gl_TYPE_CHAR32_T])
+  AC_REQUIRE([gl_CHECK_FUNC_C32RTOMB])
+  ...
+])
+</code></pre>
+<h3 id="step-2-build-the-dependency-graph"><a class="header" href="#step-2-build-the-dependency-graph">Step 2: Build the Dependency Graph</a></h3>
+<p><strong>Critical:</strong> Extract all <code>AC_REQUIRE</code> statements to build the dependency graph, with one important exception:</p>
+<blockquote>
+<p><strong>Ignore <code>_DEFAULTS</code> functions.</strong> Functions like <code>gl_UCHAR_H_DEFAULTS</code>, <code>gl_WCHAR_H_DEFAULTS</code>, etc. set initial shell variable values that get overridden by the actual check functions. In Bazel, these defaults cause duplicate check errors if both the defaults and the actual check try to set the same variable.</p>
+</blockquote>
+<p><strong>Dependency extraction example:</strong></p>
+<pre><code>gl_FUNC_C32RTOMB requires:
+  - gl_UCHAR_H_DEFAULTS    ← IGNORE (ends in _DEFAULTS)
+  - AC_CANONICAL_HOST      ← Include
+  - gl_MBRTOC32_SANITYCHECK ← Include (from different module)
+  - gl_C32RTOMB_SANITYCHECK ← Include (local target)
+  - gl_CHECK_FUNC_C32RTOMB  ← Include (local target)
+
+gl_C32RTOMB_SANITYCHECK requires:
+  - gl_TYPE_CHAR32_T        ← Include (provided by uchar_h)
+  - gl_CHECK_FUNC_C32RTOMB  ← Include (local target)
+</code></pre>
+<h3 id="step-3-create-bazel-targets-in-m4-order"><a class="header" href="#step-3-create-bazel-targets-in-m4-order">Step 3: Create Bazel Targets in M4 Order</a></h3>
+<p>Create one <code>autoconf</code> target for each <code>AC_DEFUN</code>, <strong>in the same order as they appear in the M4 file</strong>. This makes it easier to compare the Bazel code with the original M4.</p>
+<p><strong>Important convention:</strong> The target matching the package name (e.g., <code>c32rtomb</code> in the <code>c32rtomb</code> package) should:</p>
+<ul>
+<li>Have <strong>no checks</strong> (<code>checks = []</code> or omitted)</li>
+<li>Have <strong>deps on all other targets</strong> in the same package</li>
+<li><strong>Exclude <code>*_DEFAULTS</code> targets</strong> from deps</li>
+</ul>
+<p>This pattern separates the "what this module provides" (the package-named aggregator target) from "how it works" (the individual AC_DEFUN targets with checks).</p>
+<pre><code class="language-python">"""https://github.com/coreutils/gnulib/blob/.../m4/c32rtomb.m4"""
+
+load("//autoconf:autoconf.bzl", "autoconf")
+load("//autoconf:checks.bzl", "checks")
+
+# gl_FUNC_C32RTOMB - lines 10-56 (FIRST AC_DEFUN in M4)
+autoconf(
+    name = "gl_FUNC_C32RTOMB",
+    checks = [
+        checks.AC_SUBST("HAVE_C32RTOMB", condition = "gl_cv_func_c32rtomb", ...),
+        checks.AC_SUBST("REPLACE_C32RTOMB", ...),
+    ],
+    deps = [
+        "//autoconf/macros/AC_CANONICAL_HOST",
+        "//gnulib/m4/mbrtoc32:gl_MBRTOC32_SANITYCHECK",
+        ":gl_C32RTOMB_SANITYCHECK",
+        ":gl_CHECK_FUNC_C32RTOMB",
+    ],
+)
+
+# gl_CHECK_FUNC_C32RTOMB - lines 59-92 (SECOND AC_DEFUN)
+autoconf(
+    name = "gl_CHECK_FUNC_C32RTOMB",
+    checks = [
+        checks.AC_CHECK_DECL("c32rtomb", ...),
+        checks.AC_TRY_LINK(name = "gl_cv_func_c32rtomb", ...),
+    ],
+)
+
+# gl_C32RTOMB_SANITYCHECK - lines 94-171 (THIRD AC_DEFUN)
+autoconf(
+    name = "gl_C32RTOMB_SANITYCHECK",
+    checks = [
+        checks.AC_DEFINE("HAVE_WORKING_C32RTOMB", ...),
+        checks.AC_SUBST("HAVE_WORKING_C32RTOMB", ...),
+    ],
+    deps = [
+        "//gnulib/m4/uchar_h",
+        ":gl_CHECK_FUNC_C32RTOMB",
+    ],
+)
+
+# Package-level aggregator target (matches package name)
+# No checks - just deps on all other targets (excluding *_DEFAULTS)
+autoconf(
+    name = "c32rtomb",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":gl_FUNC_C32RTOMB",
+        ":gl_CHECK_FUNC_C32RTOMB",
+        ":gl_C32RTOMB_SANITYCHECK",
+    ],
+)
+</code></pre>
+<h3 id="step-4-handle-shared-checks-without-ac_require"><a class="header" href="#step-4-handle-shared-checks-without-ac_require">Step 4: Handle Shared Checks Without AC_REQUIRE</a></h3>
+<p>Multiple M4 files often perform the same check (e.g., <code>AC_CHECK_HEADERS_ONCE([utmp.h])</code>) without having an <code>AC_REQUIRE</code> relationship between them. In Bazel, this would cause duplicate check errors.</p>
+<p><strong>Solution:</strong> Create an isolated <code>autoconf</code> target that contains <em>only</em> the conflicting check, then add it as a dependency to both consumers. Do <em>not</em> remove modules from the duplicates test as a workaround.</p>
+<p><strong>Example: utmp.h header check</strong></p>
+<p>The <code>utmp_h</code> module checks for <code>utmp.h</code>:</p>
+<pre><code class="language-m4"># utmp_h.m4
+AC_DEFUN([gl_UTMP_H], [
+  AC_CHECK_HEADERS([utmp.h])
+  ...
+])
+</code></pre>
+<p>The <code>readutmp</code> module also checks for <code>utmp.h</code>:</p>
+<pre><code class="language-m4"># readutmp.m4
+AC_DEFUN([gl_READUTMP], [
+  AC_CHECK_HEADERS_ONCE([utmp.h utmpx.h])  # Same check, no AC_REQUIRE!
+  ...
+])
+</code></pre>
+<p>There's no <code>AC_REQUIRE([gl_UTMP_H])</code> in <code>readutmp</code>, but both need the same header check. Create a separate target for just the header check:</p>
+<pre><code class="language-python"># gnulib/m4/utmp_h/BUILD.bazel
+
+# Isolated header check - can be shared by multiple modules
+autoconf(
+    name = "HAVE_UTMP_H",
+    checks = [
+        checks.AC_CHECK_HEADER("utmp.h", define = "HAVE_UTMP_H"),
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# Main utmp_h module
+autoconf(
+    name = "utmp_h",
+    checks = [
+        # Other checks specific to utmp_h...
+    ],
+    deps = [
+        ":HAVE_UTMP_H",  # Use the shared check
+    ],
+)
+</code></pre>
+<pre><code class="language-python"># gnulib/m4/readutmp/BUILD.bazel
+
+autoconf(
+    name = "readutmp",
+    checks = [
+        # Other checks specific to readutmp...
+    ],
+    deps = [
+        "//gnulib/m4/utmp_h:HAVE_UTMP_H",  # Use the same shared check
+    ],
+)
+</code></pre>
+<p><strong>Key principle:</strong> Keep the isolated check target in the most semantically relevant package (e.g., the header check for <code>utmp.h</code> lives in the <code>utmp_h</code> package), and have other modules depend on it.</p>
+<h3 id="step-5-verify-and-fix-transitive-dependencies"><a class="header" href="#step-5-verify-and-fix-transitive-dependencies">Step 5: Verify and Fix Transitive Dependencies</a></h3>
+<p>The rules provide <strong>built-in duplication detection</strong>. When you build, you'll get clear error messages if a cache variable is defined in multiple places.</p>
+<p>After building, you may find that transitive dependencies are incorrect. Common issues:</p>
+<ol>
+<li>
+<p><strong>Duplicate check errors:</strong> A variable is defined both locally and in a dependency</p>
+<ul>
+<li>The build will fail with an error like: <code>Cache variable 'X' is defined both locally and in dependencies</code></li>
+<li>Solution: Remove the local definition and let the dependency provide it</li>
+<li>Or: Create a shared target (see Step 4 above)</li>
+</ul>
+</li>
+<li>
+<p><strong>Missing values:</strong> Expected substitution variables are not being set</p>
+<ul>
+<li>Solution: Add the missing dependency or add the check locally</li>
+</ul>
+</li>
+<li>
+<p><strong>Unexpected values:</strong> A transitive dependency is providing values you don't want</p>
+<ul>
+<li>Solution: Remove the unnecessary dependency or restructure the dependency chain</li>
+</ul>
+</li>
+</ol>
+<h3 id="step-6-understand-global-defaults-vs-check-results"><a class="header" href="#step-6-understand-global-defaults-vs-check-results">Step 6: Understand Global Defaults vs Check Results</a></h3>
+<p><strong>Important architectural difference:</strong> Bazel uses a shared dependency graph with global defaults, while autoconf runs each <code>configure.ac</code> independently.</p>
+<p>In autoconf:</p>
+<ul>
+<li><code>gl_UCHAR_H_DEFAULTS</code> sets <code>HAVE_C32RTOMB=1</code> as a shell variable</li>
+<li>If <code>gl_FUNC_C32RTOMB</code> is later called, it may override this to <code>0</code></li>
+<li>Different <code>configure.ac</code> files may or may not call <code>gl_FUNC_C32RTOMB</code></li>
+</ul>
+<p>In Bazel:</p>
+<ul>
+<li>Global defaults (like <code>HAVE_C32RTOMB="1"</code> in <code>uchar_h</code>) are shared across all modules</li>
+<li>There's only ONE value for each variable in the dependency graph</li>
+<li>Changing a default to make one module's test pass may break other modules</li>
+</ul>
+<p><strong>Key principle:</strong> Existing defaults should NOT be changed to make a new module pass. Defaults are fine as long as nothing in the dependency graph explicitly depends on those targets with conflicting values.</p>
+<p><strong>Subst test disagreements:</strong> Because of this architectural difference, subst tests may sometimes disagree between Bazel and autoconf+configure. This happens when:</p>
+<ul>
+<li>Autoconf runs a specific check (e.g., <code>gl_FUNC_C32RTOMB</code> → <code>HAVE_C32RTOMB=0</code> on macOS)</li>
+<li>Bazel uses the global default (e.g., <code>uchar_h</code> → <code>HAVE_C32RTOMB=1</code>)</li>
+</ul>
+<p>These cases should be evaluated on a case-by-case basis:</p>
+<ul>
+<li>If the golden file was generated from an autoconf run that included specific checks not in the Bazel dependency graph, the golden may need updating</li>
+<li>If the Bazel dependency graph should include those checks, add the appropriate dependency</li>
+<li>Sometimes the disagreement is acceptable - document it and move on</li>
+</ul>
+<h3 id="step-7-run-tests-and-iterate"><a class="header" href="#step-7-run-tests-and-iterate">Step 7: Run Tests and Iterate</a></h3>
+<pre><code class="language-bash"># Build the module
+bazel build //gnulib/m4/c32rtomb:c32rtomb
+
+# Run compatibility tests
+bazel test //gnulib/tests/compatibility/c32rtomb:all
+</code></pre>
+<p>Compare test output against golden files and fix any discrepancies.</p>
+<h3 id="step-8-test-on-linux-if-needed"><a class="header" href="#step-8-test-on-linux-if-needed">Step 8: Test on Linux (if needed)</a></h3>
+<p>When porting modules that have platform-specific behavior, you may need to test on Linux to verify correctness. The repository provides several scripts for running tests in Linux Docker containers:</p>
+<h4 id="available-linux-test-scripts"><a class="header" href="#available-linux-test-scripts">Available Linux Test Scripts</a></h4>
+<p><strong>1. <code>test_linux_docker.sh</code></strong> — Comprehensive testing on multiple Linux distributions</p>
+<ul>
+<li>Tests on Ubuntu 22.04 and Rocky Linux 9</li>
+<li>Usage: <code>./test_linux_docker.sh [--ubuntu-only | --rocky-only]</code></li>
+<li>Runs full test suite: <code>bazel test //autoconf/... //gnulib/...</code></li>
+<li>Saves results to <code>docker_test_results/</code> directory</li>
+<li>Generates summary files with test statistics</li>
+</ul>
+<p><strong>2. <code>test_modules.sh</code></strong> — Test specific modules</p>
+<ul>
+<li>Usage: <code>./test_modules.sh [--docker] module1 module2 ...</code></li>
+<li>Without <code>--docker</code>: runs tests locally (macOS)</li>
+<li>With <code>--docker</code>: runs tests in Docker (Linux)</li>
+<li>Example: <code>./test_modules.sh --docker fsusage renameat</code></li>
+</ul>
+<p><strong>3. <code>docker_bazel.sh</code></strong> — Generic Bazel command runner</p>
+<ul>
+<li>Usage: <code>./docker_bazel.sh [--amd64] &lt;bazel_command&gt;</code></li>
+<li>Builds/reuses Docker image and runs any Bazel command</li>
+<li>Supports <code>--amd64</code> flag for x86_64 emulation</li>
+<li>Example: <code>./docker_bazel.sh "test //gnulib/tests/compatibility/c32rtomb:all --test_output=errors"</code></li>
+</ul>
+<p><strong>4. <code>update_linux_golden.sh</code></strong> — Update Linux golden files</p>
+<ul>
+<li>Usage: <code>./update_linux_golden.sh module1 module2 ...</code></li>
+<li>Builds targets in Docker, extracts <code>config.h</code> and <code>subst.h</code> outputs</li>
+<li>Updates <code>golden_config_linux.h.in</code> and <code>golden_subst_linux.h.in</code> files</li>
+<li>Use when Linux-specific golden files need updating</li>
+</ul>
+<p><strong>5. <code>scripts/run_linux_tests.sh</code></strong> — Run tests and update golden files</p>
+<ul>
+<li>Builds Docker image from <code>Dockerfile</code></li>
+<li>Runs tests and executes <code>update.py</code> to extract results</li>
+<li>Mounts <code>gnulib</code> directory so updates write directly to host</li>
+</ul>
+<h4 id="when-to-use-linux-testing"><a class="header" href="#when-to-use-linux-testing">When to Use Linux Testing</a></h4>
+<ul>
+<li><strong>Platform-specific checks</strong>: Modules with <code>select()</code> statements for Linux-specific behavior</li>
+<li><strong>Golden file updates</strong>: When Linux golden files (<code>golden_config_linux.h.in</code>, <code>golden_subst_linux.h.in</code>) need updating</li>
+<li><strong>Cross-platform verification</strong>: Verify that platform conditionals work correctly</li>
+<li><strong>Test failures</strong>: Debug Linux-specific test failures</li>
+</ul>
+<h4 id="example-workflow"><a class="header" href="#example-workflow">Example Workflow</a></h4>
+<pre><code class="language-bash"># Test a specific module on Linux
+./test_modules.sh --docker c32rtomb
+
+# Update Linux golden files after making changes
+./update_linux_golden.sh c32rtomb
+
+# Run full test suite on Linux
+./test_linux_docker.sh --ubuntu-only
+</code></pre>
+<hr />
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="1-always-read-the-original-m4-file"><a class="header" href="#1-always-read-the-original-m4-file">1. Always Read the Original M4 File</a></h3>
+<p>Before migrating, understand what the M4 macro actually does:</p>
+<ul>
+<li>What checks does it perform?</li>
+<li>What defines/subst values does it create?</li>
+<li>What are its dependencies (<code>AC_REQUIRE</code>)?</li>
+<li>Are there platform-specific conditionals?</li>
+</ul>
+<h3 id="2-use-cache-variable-names-consistently"><a class="header" href="#2-use-cache-variable-names-consistently">2. Use Cache Variable Names Consistently</a></h3>
+<p>Follow autoconf naming conventions:</p>
+<ul>
+<li>Headers: <code>ac_cv_header_&lt;header&gt;</code></li>
+<li>Functions: <code>ac_cv_func_&lt;function&gt;</code></li>
+<li>Declarations: <code>ac_cv_have_decl_&lt;symbol&gt;</code></li>
+<li>Types: <code>ac_cv_type_&lt;type&gt;</code></li>
+</ul>
+<h3 id="3-prefer-gnulibm4-targets"><a class="header" href="#3-prefer-gnulibm4-targets">3. Prefer <code>//gnulib/m4</code> Targets</a></h3>
+<p>Check if a gnulib module already exists before writing manual checks. This:</p>
+<ul>
+<li>Avoids duplicate check errors</li>
+<li>Ensures consistent behavior</li>
+<li>Handles platform-specific logic</li>
+</ul>
+<h3 id="4-use-meaningful-comments"><a class="header" href="#4-use-meaningful-comments">4. Use Meaningful Comments</a></h3>
+<p>Reference the original M4 file and line numbers:</p>
+<pre><code class="language-python">"""https://github.com/coreutils/gnulib/blob/635dbdcf501d52d2e42daf6b44261af9ce2dfe38/m4/lstat.m4"""
+
+autoconf(
+    name = "lstat",
+    checks = [
+        # AC_CHECK_FUNCS_ONCE([lstat]) - line 17
+        checks.AC_CHECK_FUNC("lstat", define = "HAVE_LSTAT"),
+    ],
+    deps = [
+        # AC_REQUIRE([gl_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK]) - line 19
+        ":gl_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK",
+    ],
+)
+</code></pre>
+<h3 id="5-test-your-migration"><a class="header" href="#5-test-your-migration">5. Test Your Migration</a></h3>
+<p>Run diff tests against golden files to verify your migration produces correct output:</p>
+<pre><code class="language-python">diff_test(
+    name = "config_diff_test",
+    file1 = "golden_config.h.in",
+    file2 = ":config.h",
+)
+</code></pre>
+<h3 id="6-only-split-golden-files-when-necessary"><a class="header" href="#6-only-split-golden-files-when-necessary">6. Only Split Golden Files When Necessary</a></h3>
+<p>Golden files should only be split into platform-specific versions (<code>golden_config_linux.h.in</code>, <code>golden_config_macos.h.in</code>) when there are <strong>genuine differences</strong> in the expected output between platforms.</p>
+<p><strong>Use a single golden file when:</strong></p>
+<ul>
+<li>The output is identical across all platforms</li>
+<li>Any platform differences are handled in the Bazel targets (not the expected output)</li>
+</ul>
+<pre><code class="language-python"># GOOD: Single golden file when content is the same
+gnu_gnulib_diff_test_suite(
+    name = "sig_atomic_t_test",
+    golden_config_h = "golden_config.h.in",
+    golden_subst_h = "golden_subst.h.in",
+    ...
+)
+</code></pre>
+<p><strong>Split golden files only when:</strong></p>
+<ul>
+<li>The <code>gnu_autoconf</code> test produces genuinely different outputs on different platforms</li>
+<li>Platform-specific defines have different values (e.g., <code>REPLACE_FSTAT</code> is <code>1</code> on macOS, <code>0</code> on Linux)</li>
+</ul>
+<pre><code class="language-python"># ONLY when content genuinely differs between platforms
+gnu_gnulib_diff_test_suite(
+    name = "fstat_test",
+    golden_config_h = {
+        "linux": "golden_config_linux.h.in",
+        "macos": "golden_config_macos.h.in",
+    },
+    ...
+)
+</code></pre>
+<p><strong>Anti-pattern:</strong> Don't split golden files just because you're unsure — first verify the content differs by running <code>gnu_autoconf</code> tests on both platforms.</p>
+<hr />
+<h2 id="cross-compilation-considerations"><a class="header" href="#cross-compilation-considerations">Cross-Compilation Considerations</a></h2>
+<h3 id="design-philosophy-avoiding-runtime-checks"><a class="header" href="#design-philosophy-avoiding-runtime-checks">Design Philosophy: Avoiding Runtime Checks</a></h3>
+<p>Bazel intentionally avoids runtime checks to ensure:</p>
+<ol>
+<li><strong>Consistent behavior</strong> across builds</li>
+<li><strong>Cross-compilation support</strong> without target system access</li>
+<li><strong>Hermetic builds</strong> that don't depend on the build machine's locale, environment, etc.</li>
+</ol>
+<p>When M4 macros use <code>AC_TRY_EVAL</code> or <code>AC_RUN_IFELSE</code> (running compiled code at configure time), these should be replaced with <code>select()</code> statements that provide platform-specific defaults.</p>
+<h3 id="runtime-vs-compile-time-checks"><a class="header" href="#runtime-vs-compile-time-checks">Runtime vs Compile-Time Checks</a></h3>
+<p>Some macros require running compiled code, which doesn't work when cross-compiling:</p>
+<p><strong>NOT cross-compile safe (use <code>select()</code> instead):</strong></p>
+<ul>
+<li><code>AC_CHECK_SIZEOF</code> — Computes <code>sizeof()</code> by running code</li>
+<li><code>AC_CHECK_ALIGNOF</code> — Computes alignment by running code</li>
+<li><code>AC_COMPUTE_INT</code> — Evaluates expressions by running code</li>
+<li><code>AC_C_BIGENDIAN</code> — Detects endianness at runtime</li>
+<li><code>AC_TRY_EVAL</code> / <code>AC_RUN_IFELSE</code> — Runs compiled test programs</li>
+<li>Locale detection macros (e.g., <code>gt_LOCALE_FR</code>) — Tests locale availability at runtime</li>
+</ul>
+<p><strong>Cross-compile safe:</strong></p>
+<ul>
+<li><code>AC_CHECK_HEADER</code> — Compile-only</li>
+<li><code>AC_CHECK_FUNC</code> — Link check</li>
+<li><code>AC_CHECK_DECL</code> — Compile-only</li>
+<li><code>AC_CHECK_TYPE</code> — Compile-only</li>
+<li><code>AC_TRY_COMPILE</code> — Compile-only</li>
+<li><code>AC_TRY_LINK</code> — Link check</li>
+<li><code>AC_DEFINE</code> — No check, just defines</li>
+</ul>
+<h3 id="strategies-for-cross-compilation"><a class="header" href="#strategies-for-cross-compilation">Strategies for Cross-Compilation</a></h3>
+<ol>
+<li><strong>Use <code>select()</code> for runtime checks (preferred):</strong></li>
+</ol>
+<p>When M4 uses runtime checks to detect platform-specific behavior, replace with <code>select()</code>:</p>
+<p><strong>M4 (uses runtime locale detection):</strong></p>
+<pre><code class="language-m4">AC_DEFUN([gt_LOCALE_FR], [
+  # Complex runtime locale testing with AC_TRY_EVAL
+  # Tests various locale names by actually running setlocale()
+  case "$host_os" in
+    mingw* | windows*) gt_cv_locale_fr=French_France.1252 ;;
+    *) gt_cv_locale_fr=fr_FR.ISO8859-1 ;;
+  esac
+  AC_SUBST([LOCALE_FR])
+])
+</code></pre>
+<p><strong>Bazel (uses select() for platform-specific defaults):</strong></p>
+<pre><code class="language-python">autoconf(
+    name = "gt_LOCALE_FR",
+    checks = select({
+        "@platforms//os:windows": [
+            checks.AC_SUBST("LOCALE_FR", "French_France.1252"),
+        ],
+        "//conditions:default": [
+            checks.AC_SUBST("LOCALE_FR", "fr_FR.ISO8859-1"),
+        ],
+    }),
+)
+</code></pre>
+<ol start="2">
+<li><strong>Use compile-time detection for feature checks:</strong></li>
+</ol>
+<pre><code class="language-python">checks.AC_TRY_COMPILE(
+    code = """
+#if defined(__APPLE__) &amp;&amp; defined(__MACH__)
+  #error "macOS detected"
+#endif
+int main(void) { return 0; }
+""",
+    define = "_IS_MACOS",
+)
+</code></pre>
+<ol start="3">
+<li><strong>Use platform selects for known values:</strong></li>
+</ol>
+<pre><code class="language-python">autoconf(
+    name = "endian",
+    checks = select({
+        "@platforms//cpu:x86_64": [
+            checks.AC_DEFINE("WORDS_BIGENDIAN", "0"),
+        ],
+        "@platforms//cpu:arm64": [
+            checks.AC_DEFINE("WORDS_BIGENDIAN", "0"),  # ARM64 is little-endian
+        ],
+        "//conditions:default": [],
+    }),
+)
+</code></pre>
+<hr />
+<h2 id="complete-examples"><a class="header" href="#complete-examples">Complete Examples</a></h2>
+<h3 id="example-1-simple-module-posix_memalign"><a class="header" href="#example-1-simple-module-posix_memalign">Example 1: Simple Module (posix_memalign)</a></h3>
+<p><strong>Original M4:</strong> <code>gnulib/m4/posix_memalign.m4</code></p>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">"""https://github.com/coreutils/gnulib/blob/635dbdcf501d52d2e42daf6b44261af9ce2dfe38/m4/posix_memalign.m4"""
+
+load("//autoconf:autoconf.bzl", "autoconf")
+load("//autoconf:checks.bzl", "checks")
+
+autoconf(
+    name = "posix_memalign",
+    checks = [
+        checks.AC_CHECK_FUNC("posix_memalign", define = "HAVE_POSIX_MEMALIGN"),
+        checks.AC_SUBST("REPLACE_POSIX_MEMALIGN", "1"),
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//autoconf/macros/AC_CANONICAL_HOST",
+        "//gnulib/m4/extensions",
+        "//autoconf/macros/AC_CHECK_INCLUDES_DEFAULT",
+    ],
+)
+</code></pre>
+<h3 id="example-2-platform-specific-module-fstat"><a class="header" href="#example-2-platform-specific-module-fstat">Example 2: Platform-Specific Module (fstat)</a></h3>
+<p><strong>Original M4:</strong> <code>gnulib/m4/fstat.m4</code></p>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">"""https://github.com/coreutils/gnulib/blob/635dbdcf501d52d2e42daf6b44261af9ce2dfe38/m4/fstat.m4"""
+
+load("//autoconf:autoconf.bzl", "autoconf")
+load("//autoconf:checks.bzl", "checks")
+
+autoconf(
+    name = "fstat",
+    checks = select({
+        "@platforms//os:macos": [
+            # macOS: stat can return negative tv_nsec
+            checks.AC_SUBST("REPLACE_FSTAT", "1"),
+        ],
+        "@platforms//os:windows": [
+            # Windows: stat returns timezone-affected timestamps
+            checks.M4_VARIABLE("REPLACE_FSTAT", "1"),
+        ],
+        "//conditions:default": [],
+    }),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//gnulib/m4/sys_stat_h",
+        "//gnulib/m4/sys_types_h",
+    ],
+)
+</code></pre>
+<h3 id="example-3-conditional-checks-strerror"><a class="header" href="#example-3-conditional-checks-strerror">Example 3: Conditional Checks (strerror)</a></h3>
+<p><strong>Original M4:</strong> <code>gnulib/m4/strerror.m4</code></p>
+<p><strong>Bazel:</strong></p>
+<pre><code class="language-python">"""https://github.com/coreutils/gnulib/blob/635dbdcf501d52d2e42daf6b44261af9ce2dfe38/m4/strerror.m4"""
+
+load("//autoconf:autoconf.bzl", "autoconf")
+load("//autoconf:checks.bzl", "checks", "utils")
+
+autoconf(
+    name = "gl_FUNC_STRERROR_0",
+    checks = [
+        # Compile-time platform detection for strerror(0) behavior
+        checks.AC_TRY_COMPILE(
+            name = "_gl_cv_func_strerror_0_works",
+            code = utils.AC_LANG_PROGRAM(
+                [
+                    "#if defined(__APPLE__) &amp;&amp; defined(__MACH__)",
+                    "  #error \"macOS strerror needs replacement\"",
+                    "#endif",
+                ],
+                "",
+            ),
+        ),
+        # Set REPLACE_STRERROR_0 if check fails
+        checks.AC_DEFINE(
+            "REPLACE_STRERROR_0",
+            condition = "_gl_cv_func_strerror_0_works",
+            if_false = 1,
+        ),
+    ] + select({
+        "@platforms//os:macos": [
+            checks.AC_SUBST("REPLACE_STRERROR_0", "1"),
+        ],
+        "//conditions:default": [
+            checks.AC_SUBST("REPLACE_STRERROR_0", "0"),
+        ],
+    }),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//autoconf/macros/AC_CANONICAL_HOST",
+        "//gnulib/m4/errno_h",
+        "//gnulib/m4/extensions",
+    ],
+)
+</code></pre>
+<h3 id="example-4-link-test-with-ac_lang_program"><a class="header" href="#example-4-link-test-with-ac_lang_program">Example 4: Link Test with AC_LANG_PROGRAM</a></h3>
+<pre><code class="language-python">load("//autoconf:checks.bzl", "checks", "utils")
+
+autoconf(
+    name = "autoconf",
+    checks = [
+        checks.AC_TRY_LINK(
+            code = utils.AC_LANG_PROGRAM(
+                [
+                    "/* Prologue: includes and declarations */",
+                    "#include &lt;langinfo.h&gt;",
+                ],
+                "/* Body: code inside main() */\n"
+                "char* cs = nl_langinfo(CODESET);\n"
+                "return !cs;",
+            ),
+            define = "HAVE_LANGINFO_CODESET",
+        ),
+    ],
+)
+</code></pre>
+<hr />
+<h2 id="migration-checklist"><a class="header" href="#migration-checklist">Migration Checklist</a></h2>
+<p>When migrating an M4 file, follow this checklist:</p>
+<ul>
+<li><input disabled="" type="checkbox"/>
+Read and understand the original M4 file</li>
+<li><input disabled="" type="checkbox"/>
+Check for existing <code>//gnulib/m4</code> targets that provide needed checks</li>
+<li><input disabled="" type="checkbox"/>
+Identify all <code>AC_REQUIRE</code> dependencies</li>
+<li><input disabled="" type="checkbox"/>
+Map each M4 macro to its Bazel equivalent</li>
+<li><input disabled="" type="checkbox"/>
+Convert argument syntax (brackets → quotes)</li>
+<li><input disabled="" type="checkbox"/>
+Split plural macros into individual calls</li>
+<li><input disabled="" type="checkbox"/>
+Add <code>define =</code> parameters for config.h defines</li>
+<li><input disabled="" type="checkbox"/>
+Add <code>subst =</code> parameters for @VAR@ substitutions</li>
+<li><input disabled="" type="checkbox"/>
+Handle platform conditionals with <code>select()</code></li>
+<li><input disabled="" type="checkbox"/>
+Add comments referencing original M4 file and line numbers</li>
+<li><input disabled="" type="checkbox"/>
+Add dependencies to <code>deps</code> list</li>
+<li><input disabled="" type="checkbox"/>
+Test with diff tests against golden files</li>
+<li><input disabled="" type="checkbox"/>
+Verify no duplicate checks between direct checks and deps</li>
+</ul>
+<hr />
+<h2 id="common-pitfalls"><a class="header" href="#common-pitfalls">Common Pitfalls</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Problem</th><th>Solution</th></tr></thead><tbody>
+<tr><td>Forgetting to split plural macros</td><td><code>AC_CHECK_HEADERS([a b c])</code> needs 3 separate <code>AC_CHECK_HEADER</code> calls</td></tr>
+<tr><td>Missing <code>define =</code> parameter</td><td>Add <code>define = "HAVE_FOO"</code> to create defines in config.h</td></tr>
+<tr><td>Wrong define names</td><td>Follow autoconf conventions: <code>HAVE_&lt;NAME&gt;</code>, <code>SIZEOF_&lt;TYPE&gt;</code>, etc.</td></tr>
+<tr><td>Duplicate check errors</td><td>Use <code>//gnulib/m4</code> targets instead of manual checks</td></tr>
+<tr><td>Missing main() wrapper</td><td><code>AC_TRY_COMPILE</code> code must include <code>int main(void) { ... }</code> or use <code>utils.AC_LANG_PROGRAM</code></td></tr>
+<tr><td>String literals in defines</td><td>Use <code>'"string"'</code> (outer single, inner double quotes)</td></tr>
+<tr><td>Platform conditionals</td><td>Use <code>select()</code> for <code>case "$host_os"</code> patterns</td></tr>
+<tr><td>Cross-compilation failures</td><td>Avoid <code>AC_CHECK_SIZEOF</code> and similar runtime checks</td></tr>
+<tr><td>Subst test disagrees with autoconf</td><td>Evaluate case-by-case: may be due to global defaults vs specific checks (see Step 6)</td></tr>
+<tr><td>Changing defaults to fix one module</td><td>Don't change existing defaults; they may break other modules</td></tr>
+<tr><td>Unnecessary <code>name</code> + separate <code>AC_DEFINE</code></td><td>Use <code>define =</code> directly unless the cache variable is needed in <code>requires</code> or you need custom values</td></tr>
+<tr><td>Using <code>condition</code> with <code>if_false = None</code></td><td>Use <code>requires = ["cache_var==1"]</code> to gate defines; <code>condition</code> is for value selection, not gating</td></tr>
+<tr><td>Unnecessary golden file split</td><td>Only split into <code>_linux.h.in</code> / <code>_macos.h.in</code> when content genuinely differs between platforms</td></tr>
+</tbody></table>
+</div>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="gnulib.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="gnulib.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

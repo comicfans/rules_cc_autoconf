@@ -1,0 +1,277 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>autoconf_hdr - rules_cc_autoconf</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rules_cc_autoconf</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/periareon/rules_cc_autoconf" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <!-- Generated with Stardoc: http://skydoc.bazel.build -->
+<h1 id="autoconf_hdr"><a class="header" href="#autoconf_hdr">autoconf_hdr</a></h1>
+<h2 id="rules"><a class="header" href="#rules">Rules</a></h2>
+<ul>
+<li><a href="#autoconf_hdr">autoconf_hdr</a></li>
+</ul>
+<p><a id="autoconf_hdr"></a></p>
+<h2 id="autoconf_hdr-1"><a class="header" href="#autoconf_hdr-1">autoconf_hdr</a></h2>
+<pre>
+load("@rules_cc_autoconf//autoconf:autoconf_hdr.bzl", "autoconf_hdr")
+
+autoconf_hdr(<a href="#autoconf_hdr-name">name</a>, <a href="#autoconf_hdr-deps">deps</a>, <a href="#autoconf_hdr-out">out</a>, <a href="#autoconf_hdr-defaults">defaults</a>, <a href="#autoconf_hdr-defaults_exclude">defaults_exclude</a>, <a href="#autoconf_hdr-defaults_include">defaults_include</a>, <a href="#autoconf_hdr-inlines">inlines</a>, <a href="#autoconf_hdr-mode">mode</a>,
+             <a href="#autoconf_hdr-substitutions">substitutions</a>, <a href="#autoconf_hdr-template">template</a>)
+</pre>
+<p>Generate configuration headers from results provided by <code>autoconf</code> targets.</p>
+<p>This rule takes check results from <code>autoconf</code> targets (via <code>deps</code>) and generates a header file.
+The template file (if provided) is used to format the output header.</p>
+<p>Example:</p>
+<pre><code class="language-python">load("@rules_cc_autoconf//autoconf:autoconf.bzl", "autoconf")
+load("@rules_cc_autoconf//autoconf:autoconf_hdr.bzl", "autoconf_hdr")
+load("@rules_cc_autoconf//autoconf:checks.bzl", "checks")
+
+autoconf(
+    name = "config_checks",
+    checks = [
+        checks.AC_CHECK_HEADER("stdio.h"),
+        checks.AC_CHECK_HEADER("stdlib.h"),
+        checks.AC_CHECK_FUNC("printf"),
+    ],
+)
+
+autoconf_hdr(
+    name = "config",
+    out = "config.h",
+    deps = [":config_checks"],
+    template = "config.h.in",
+)
+</code></pre>
+<p>Valid <code>mode</code> values:</p>
+<ul>
+<li><code>"defines"</code> (default): Only process defines (AC_DEFINE, AC_CHECK_*, etc.), not substitution variables (AC_SUBST). This is for config.h files.</li>
+<li><code>"subst"</code>: Only process substitution variables (AC_SUBST), not defines. This is for subst.h files.</li>
+<li><code>"all"</code>: Process both defines and substitution variables.</li>
+</ul>
+<p>This allows you to run checks once and generate multiple header files from the same results.</p>
+<p><strong>ATTRIBUTES</strong></p>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Name</th><th style="text-align: left">Description</th><th style="text-align: left">Type</th><th style="text-align: left">Mandatory</th><th style="text-align: left">Default</th></tr></thead><tbody>
+<tr><td style="text-align: left"><a id="autoconf_hdr-name"></a>name</td><td style="text-align: left">A unique name for this target.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels#target-names">Name</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="autoconf_hdr-deps"></a>deps</td><td style="text-align: left">List of <code>autoconf</code> targets which provide check results. Results from all deps will be merged together, and duplicate define names will produce an error. If not provided, an empty results file will be created.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">List of labels</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
+<tr><td style="text-align: left"><a id="autoconf_hdr-out"></a>out</td><td style="text-align: left">The output config file (typically <code>config.h</code>).</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a>; <a href="https://bazel.build/reference/be/common-definitions#configurable-attributes">nonconfigurable</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><a id="autoconf_hdr-defaults"></a>defaults</td><td style="text-align: left">Whether to include toolchain defaults.<br><br>When False (the default), no toolchain defaults are included and only the explicit deps provide check results. When True, defaults from the autoconf toolchain are included, subject to filtering by defaults_include or defaults_exclude.</td><td style="text-align: left">Boolean</td><td style="text-align: left">optional</td><td style="text-align: left"><code>False</code></td></tr>
+<tr><td style="text-align: left"><a id="autoconf_hdr-defaults_exclude"></a>defaults_exclude</td><td style="text-align: left">Labels to exclude from toolchain defaults.<br><br>Only effective when defaults=True. If specified, defaults from these labels are excluded. Labels not found in the toolchain are silently ignored. Mutually exclusive with defaults_include.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">List of labels</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
+<tr><td style="text-align: left"><a id="autoconf_hdr-defaults_include"></a>defaults_include</td><td style="text-align: left">Labels to include from toolchain defaults.<br><br>Only effective when defaults=True. If specified, only defaults from these labels are included. An error is raised if a specified label is not found in the toolchain. Mutually exclusive with defaults_exclude.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">List of labels</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>[]</code></td></tr>
+<tr><td style="text-align: left"><a id="autoconf_hdr-inlines"></a>inlines</td><td style="text-align: left">A mapping of strings to files for replace within the content of the given <code>template</code> attribute.<br><br>The exact string in the template is replaced with the content of the associated file. Any <code>@VAR@</code> style placeholders in the inline file content will be replaced with their corresponding define values (package info, check results, etc.) after insertion.</td><td style="text-align: left">Dictionary: String -&gt; Label</td><td style="text-align: left">optional</td><td style="text-align: left"><code>{}</code></td></tr>
+<tr><td style="text-align: left"><a id="autoconf_hdr-mode"></a>mode</td><td style="text-align: left">Processing mode that determines what should be replaced within the file.</td><td style="text-align: left">String</td><td style="text-align: left">optional</td><td style="text-align: left"><code>"defines"</code></td></tr>
+<tr><td style="text-align: left"><a id="autoconf_hdr-substitutions"></a>substitutions</td><td style="text-align: left">A mapping of exact strings to replacement values.<br><br>Each entry performs an exact text replacement in the template - the key string is replaced with the value string. No special patterns or wrappers are added.<br><br>Example: <pre><code class="language-python">autoconf_hdr(
+    name = "config",
+    out = "config.h",
+    template = "config.h.in",
+    substitutions = {
+        "@MY_VERSION@": "1.2.3",
+        "@BUILD_TYPE@": "release",
+        "PLACEHOLDER_TEXT": "actual_value",
+    },
+    deps = [":checks"],
+)</code></pre><br><br>This would replace the exact string <code>@MY_VERSION@</code> with <code>1.2.3</code>, <code>@BUILD_TYPE@</code> with <code>release</code>, and <code>PLACEHOLDER_TEXT</code> with <code>actual_value</code>.</td><td style="text-align: left"><a href="https://bazel.build/rules/lib/dict">Dictionary: String -&gt; String</a></td><td style="text-align: left">optional</td><td style="text-align: left"><code>{}</code></td></tr>
+<tr><td style="text-align: left"><a id="autoconf_hdr-template"></a>template</td><td style="text-align: left">Template file (<code>config.h.in</code>) to use as base for generating the header file. The template is used to format the output header, but does not generate any checks.</td><td style="text-align: left"><a href="https://bazel.build/concepts/labels">Label</a></td><td style="text-align: left">required</td><td style="text-align: left"></td></tr>
+</tbody></table>
+</div>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="autoconf.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="autoconf_srcs.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="autoconf.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="autoconf_srcs.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
