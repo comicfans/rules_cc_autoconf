@@ -1,0 +1,17 @@
+load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+
+package(default_visibility = ["//autoconf:__subpackages__"])
+
+py_library(
+    name = "load",
+    srcs = ["load.py"],
+)
+
+py_binary(
+    name = "meson_bridge",
+    srcs = ["meson_bridge.py"],
+    deps = [
+        "load",
+        "@meson",
+    ],
+)

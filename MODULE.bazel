@@ -24,3 +24,22 @@ use_repo(
     gnulib,
     "gnulib",
 )
+
+bazel_dep(name = "meson", version = "1.5.1.bcr.1")
+local_path_override(
+    module_name = "meson",
+    path = "/home/comicfans/project/bazel-central-registry/modules/meson/1.5.1.bcr.1/",
+)
+
+bazel_dep(name = "rules_python", version = "1.8.4")
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+
+PYTHON_VERSION = "3.13"
+
+python.toolchain(
+    configure_coverage_tool = True,
+    is_default = True,
+    python_version = PYTHON_VERSION,
+)
+use_repo(python, "python_3_13")

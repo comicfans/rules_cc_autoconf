@@ -1,0 +1,31 @@
+"""meson_config"""
+
+module(
+    name = "meson_config",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "rules_cc_autoconf", version = "0.7.8")
+local_path_override(
+    module_name = "rules_cc_autoconf",
+    path = "../",
+)
+
+bazel_dep(name = "meson", version = "1.5.1.bcr.1")
+git_override(
+    module_name = "meson",
+    commit = "f262506f1c1199e1555a0983ddcced6cd313edc3",
+    remote = "https://github.com/comicfans/bazel-central-registry.git",
+    strip_prefix = "modules/meson/1.5.1.bcr.1",
+)
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+
+PYTHON_VERSION = "3.13"
+
+python.toolchain(
+    configure_coverage_tool = True,
+    is_default = True,
+    python_version = PYTHON_VERSION,
+)
+use_repo(python, "python_{}".format(PYTHON_VERSION.replace(".", "_")))

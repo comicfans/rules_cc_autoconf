@@ -1,0 +1,8 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+
+py_binary(
+    name = "expr_eval",
+    srcs = ["expr_eval.py"],
+    visibility = ["//autoconf:__subpackages__"],
+    deps = ["//autoconf/private/meson_bridge:load"],
+)

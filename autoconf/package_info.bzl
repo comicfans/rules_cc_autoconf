@@ -189,6 +189,7 @@ def _package_info_impl(ctx):
             define_results = results | extra_results,
             subst_results = {},
         ),
+        DefaultInfo(files = depset(results.values())),
     ]
 
 package_info = rule(

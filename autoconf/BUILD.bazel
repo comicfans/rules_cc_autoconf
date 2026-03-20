@@ -24,6 +24,15 @@ bzl_library(
 )
 
 bzl_library(
+    name = "meson_hdr_bzl",
+    srcs = ["meson_hdr.bzl"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//autoconf/private:bzl_lib",
+    ],
+)
+
+bzl_library(
     name = "autoconf_srcs_bzl",
     srcs = ["autoconf_srcs.bzl"],
     visibility = ["//visibility:public"],
@@ -73,6 +82,7 @@ bzl_library(
         ":autoconf_toolchain_bzl",
         ":cc_autoconf_info_bzl",
         ":checks_bzl",
+        ":meson_hdr_bzl",
         ":package_info_bzl",
     ],
 )
@@ -86,4 +96,5 @@ exports_files([
     "defs.bzl",
     "package_info.bzl",
     "utils.bzl",
+    "meson_hdr.bzl",
 ])
