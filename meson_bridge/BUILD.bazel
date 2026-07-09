@@ -1,0 +1,21 @@
+load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+
+package(default_visibility = ["//visibility:public"])
+
+py_library(
+    name = "load",
+    srcs = ["load.py"],
+)
+
+py_binary(
+    name = "meson_bridge",
+    srcs = [
+        "load.py",
+        "meson_bridge.py",
+    ],
+    main = "meson_bridge.py",
+    deps = [
+        "load",
+        "@meson",
+    ],
+)

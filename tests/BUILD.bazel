@@ -1,0 +1,51 @@
+load("@meson_config//:defs.bzl", "expr_config", "expr_defines", "meson_hdr")
+load("@rules_cc//cc:defs.bzl", "cc_test")
+load("@rules_cc_autoconf//autoconf:defs.bzl", "macros")
+
+# A single expr_config mixing plain AC_CHECK_DECLS checks with an expr_defines
+# computed define -- the plain checks and the python expression live together.
+builtin_checks = macros.AC_CHECK_DECLS([
+    "_MSC_VER",
+    "GCC_VERSION",
+    "__clang_version__",
+])
+
+compiler_id_checks = expr_defines(
+    defines = ["COMPILER_ID"],
+    expr = """
+if ac_cv_have_decl___clang_version__:
+    COMPILER_ID = "clang"
+elif ac_cv_have_decl__msc_ver:
+    COMPILER_ID = "msvc"
+elif ac_cv_have_decl_gcc_version:
+    COMPILER_ID = "gcc"
+else:
+    COMPILER_ID = "other"
+""",
+    requires = [
+        "ac_cv_have_decl_gcc_version",
+        "ac_cv_have_decl__msc_ver",
+        "ac_cv_have_decl___clang_version__",
+    ],
+)
+
+expr_config(
+    name = "config",
+    checks = builtin_checks + compiler_id_checks,
+)
+
+meson_hdr(
+    name = "gen_header",
+    out = "compiler_id.h",
+    template = "compiler_id.h.in",
+    deps = [":config"],
+)
+
+cc_test(
+    name = "test_compiler_id",
+    srcs = [
+        "compiler_id.cxx",
+        "compiler_id.h",
+    ],
+    copts = ["-std=c++17"],
+)

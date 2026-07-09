@@ -1,0 +1,25 @@
+"""meson_config"""
+
+module(
+    name = "meson_config",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "bazel_features", version = "1.47.1")
+bazel_dep(name = "bazel_skylib", version = "1.9.0")
+bazel_dep(name = "rules_cc", version = "0.2.17")
+bazel_dep(name = "rules_cc_autoconf", version = "0.15.0")
+
+bazel_dep(name = "meson", version = "1.5.1.bcr.1")
+
+PYTHON_VERSION = "3.13"
+
+bazel_dep(name = "rules_python", version = "1.9.0")
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(
+    configure_coverage_tool = True,
+    is_default = True,
+    python_version = PYTHON_VERSION,
+)
+use_repo(python, "python_3_13")
